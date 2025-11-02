@@ -1,0 +1,28 @@
+name: Evidence – Auto-update README
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # lets you run it manually
+
+permissions:
+  contents: write  # allow the workflow to push back to the repo
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Append timestamp to README
+        run: |
+          echo "" >> README.md
+          echo "Last CI run: $(date -u +"%Y-%m-%d %H:%M:%S") UTC" >> README.md
+
+      - name: Commit & push (ignore if no changes)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "CI: append timestamp" || echo "No changes to commit"
+          git push
